@@ -130,34 +130,34 @@
 \begin{proof}
   As the Frobenious norm of a matrix $A$ is given by $\|A\|_F = (\sum_{i=1}^m \sum_{j=1}^n |a_{ij}|^2)^{\frac{1}{2}}$ we have that
 
-  \begin{align}
+  \begin{align*}
     \|A\|_F^2 &= \|U\Sigma V^T\|_F^2 \\
     &=\|\Sigma \|_F^2 \\
     &= \sum_{i=1}^n \sigma_i(A)^2
-  \end{align}
+  \end{align*}
 
   Furthermore by Von Neumanns trace inequality we have that
 
-  \begin{align}
-    |<A,B>| \leq \sum_{i=1}^n \sigma_i(A)\sigma_i(B)
-  \end{align}
+  \begin{align*}
+    |<A,B>_F| \leq \sum_{i=1}^n \sigma_i(A)\sigma_i(B)
+  \end{align*}
 
   Hence we can find the lower bound for the Frobenious norm
 
-  \begin{align}
+  \begin{align*}
     \|X-A\|_F^2 &= <X-A,X-A>_F \\
     &= \|A\|_F^2 - 2<A,X>_F + \|X\|^2_F\\
     &\geq \sum_{i=1}^n \sigma_i(A)^2 -2\sum_{i=1}^n\sigma_i(A)\sigma_i(X) + \sum_{i=1}^n \sigma_i(X)^2 \\
     &= \sum_{i=1}^n(\sigma_i(A) - \sigma_i(X))^2
-  \end{align}
+  \end{align*}
 
   \noindent where it should be noted that this part is heavily inspired by [p. 58 Mirsky]\cite{Mirsky}.
 
   If $\sigma_1(A) \geq \sigma_2(A) \geq \cdots \geq \sigma_n(A)$ and $X$ is of rank $k$, then it is evident that we attain the lower bound when we have $X$ such that $\sigma_i(A) = \sigma_i(X)$ for $i = 1,\cdots,k$ and hence the lower bound is
 
-  \begin{align}
-    \|X-A\|^2_F \geq \sum_{k+1}^n \sigma_i(A)^2
-  \end{align}
+  \begin{align*}
+    \|X-A\|^2_F \geq \sum_{i=k+1}^n \sigma_i(A)^2
+  \end{align*}
 
   It is then trivial to show that the lower bound is attained by $A_k$
 
@@ -175,7 +175,7 @@
 \section{Theory exercise 2}
 
 \begin{theorem}
-  Let $A \approx P_kB_kQ_k^T$ be the approximation of $A \in {m \times n}, n \leq m$ by Lanczos bidiagonalization, here $B$ is bidiagonal. Then the columns of $Q_k,P_k$ are orthonormal.
+  Let $A \approx P_kB_kQ_k^T$ be the approximation of $A \in \mathbb{R}^{m \times n}, n \leq m$ by Lanczos bidiagonalization, here $B$ is bidiagonal. Then the columns of $Q_k,P_k$ are orthonormal.
 \end{theorem}
 
 \begin{proof}
@@ -199,14 +199,14 @@
 
   \noindent Where we in the last line used that $\beta_2 = u_2^TAv_1 - \alpha_1u_2^Tu_1 = u_2^TAv_1$. It could also be shown that $<u_2,u_2> = <v_2,v_2> = 1$, but this follows directly from the algorithm, as we normalize the vectors using $\alpha_2,\beta_2$.
 
-  We will now proceed with an induction hypothesis. Lets assume that, for some $l$ such that $1<l<n$ we have that
+  We will now proceed with an induction hypothesis. Lets assume that, for some $l$ such that $1<l<k$ we have that
 
   \begin{align*}
     <u_i,u_{j}> &= \delta_{i,j} \\
     <v_i,v_{j}> &= \delta_{i,j} \; \; \text{for } \; 1 \leq i,j \leq l
   \end{align*}
 
-  we then prove that from this assumption, orthogonality holds in general, for $l < i,j \leq < k$. From the assumption we see the following (for $1 \leq i,j \leq l$)
+  we then prove that from this assumption, orthogonality holds in general, for $l < i,j \leq k$. From the assumption we see the following (for $1 \leq i,j \leq l$)
 
   \begin{align*}
     \alpha_i &= v_i^TA^Tu_i - \beta_i v_i^Tv_{i-1} = v_i^TA^Tu_i \\
@@ -242,23 +242,16 @@ To conclude, we have shown that the assumption is indeed true for $l = 2$. And w
 \section{Theory exercise 3}
 
 \begin{theorem}
-  Let $U \in \mathbb{R}^{m \times k}, \; \text{st } U^TU = I$ and $B \in \mathbb{R}^{m\times m}, \; \text{st } B^T = -B$. Then for
+  Let $U \in \mathbb{R}^{m \times k}$ with orthogonal columns and $B \in \mathbb{R}^{m\times m}, \; \text{st } B^T = -B$. Then for
 \begin{align*}
   \bar U = \text{cay}(B)U
 \end{align*}
 
-\noindent we have that $\bar U^T \bar U = I$. 
+\noindent $\bar U$ has orthogonal columns.
 \end{theorem}
 
 \begin{proof}
-  In general, if $F,G$ are orthonormal, then $D = FG$ is othonormal as we have
-
-  \begin{align*}
-    D^TD &= G^TF^TFG \\
-    &= G^TG = I
-  \end{align*}
-
-  Hence it is sufficient to show that $\text{cay}(B)$ is orthogonal. We have
+Lets first prove that $\text{cay}(B)$ is orthogonal
 
   \begin{align*}
     \text{cay}(B)^T\text{cay}(B) &=  (I+\frac{1}{2}B)^T(I-\frac{1}{2}B)^{-T}(I-\frac{1}{2}B)^{-1}(I+\frac{1}{2}B)\\
@@ -280,17 +273,32 @@ To conclude, we have shown that the assumption is indeed true for $l = 2$. And w
     &= I
   \end{align*}
 
-Hence $\text{cay}(B)U$ is orthonormal.
+Now taking
 
+\begin{align*}
+  \bar U^T \bar U &= U^T\text{cay}(B)^T\text{cay}(B)U\\
+  &= U^TU
+\end{align*}
+
+As $U$ has orthonormal columns, then it follows that $\bar U$ has orthonormal columns.
 \end{proof}
 
 \section{Theory exercise 4}
 
 \begin{theorem}
-  Let $U,U^{\perp}$ be orthonormal matrices and $W$ be skew symmetric, ie. that $W^T = -W$. Then for $U,U^{\perp},W$ having suitable sizes we have
+  Let $C = [F_U,-U], D = [U,F_U], C,D \in \mathbb{R}^{m \times 2k}$, and $F_U = U^{\perp}R_{2,2}$ be the QR-factorization. Then the Cayley transformation of $CD^T$ could be expressed as
 
   \begin{align*}
-    \text{cay}\bigg([U,U^{\perp}]W[U,U^{\perp}]^T\bigg) &= [U,U^{\perp}]\text{cay}(W)[U,U^{\perp}]^T. 
+    \text{cay}(CD^T) &= I + [U,U^{\perp}]\begin{bmatrix}
+      0&-R^T_{2,2}\\
+      R_{2,2}&0
+    \end{bmatrix}
+    \biggl(I-\frac{1}{2}
+    \begin{bmatrix}
+      0&-R^T_{2,2}\\
+      R_{2,2}&0
+    \end{bmatrix}
+    \biggl)^{-1}[U,U^{\perp}]^T.
   \end{align*}
 \end{theorem}
 
@@ -301,36 +309,80 @@ Hence $\text{cay}(B)U$ is orthonormal.
     \text{cay}(B) = \sum_{i=0}^{\infty} \alpha_i B^i
   \end{align*}
 
-  for $B = [U,U^{\perp}]W[U,U^{\perp}]^T$ we see that the orthogonal terms collapse when taking powers
+  And for $B = CD^T$ it is possible to show that, if we can rewrite the power series as
 
   \begin{align*}
-    B^i &= [U,U^{\perp}]W\underbrace{[U,U^{\perp}]^T[U,U^{\perp}]}_{= I}W[U,U^{\perp}]^T\cdots[U,U^{\perp}]W\underbrace{[U,U^{\perp}]^T[U,U^{\perp}]}_{= I}W[U,U^{\perp}]^T \\
-    &= [U,U^{\perp}]B^{i-1}\underbrace{[U,U^{\perp}]^T[U,U^{\perp}]}_{= I}B[U,U^{\perp}]^T \\
-    &= [U,U^{\perp}]B^i[U,U^{\perp}]^T 
+    \phi(B) &= \alpha_0 I + C \sum_{i=1}^{\infty}\alpha_i (D^TC)^{i-1}D^T
   \end{align*}
 
-\noindent hence 
-
-\begin{align*}
-  \text{cay}\bigg([U,U^{\perp}]W[U,U^{\perp}]^T\bigg) &= [U,U^{\perp}]\bigg(\sum_{i=0}^{\infty} \alpha_i W^i\bigg)[U,U^{\perp}]^T \\
-  &=  [U,U^{\perp}]\text{cay}(W)[U,U^{\perp}]^T
-\end{align*}
-
-\end{proof}
-
-\begin{remark}
-  For $U^{\perp}R_{2,2} = F_U$ being the QR-transformation of $F_U$, orthogonality is indeed the case for $U^{\perp}$. Furthermore it is trivial to see that when 
+  \noindent then we can write the Cayley transform as
 
   \begin{align*}
-    W = \begin{bmatrix}
-      0&-R^T_{2,2} \\
+    \text{cay}(CD^T) &= I + C(I+\frac{1}{2}D^TC)^{-1}D^T.
+  \end{align*}
+
+With the given QR-decomposition of $F_U$ we can write $CD^T$ on the form
+
+  \begin{align*}
+    CD^T &= [U,U^{\perp}]
+    \begin{bmatrix}
+      0&-R^T_{2,2}\\
       R_{2,2}&0
     \end{bmatrix}
+    [U,U^{\perp}]^T
   \end{align*}
 
-  $W$ is skew symmetric.
-\end{remark}
 
+  Let now $W =  [U,U^{\perp}] \in \mathbb{R}^{m \times 2k}$ and $R \in \mathbb{R}^{2k \times 2k}$ be the above matrix with the upper diagonal QR-terms $R_{2,2}$. We can then show that the middle terms collapse when taking powers of $B$, i.e. that
+
+  \begin{align*}
+    B^i &= W\underbrace{RW^TWR}_{= R^2}W^T \cdots W\underbrace{RW^TWR}_{= R^2}W^T\\
+    &= WR^{i-2}\underbrace{RW^TWR}_{= R^2}W^T\\
+    &= WR^iW^T\\
+  \end{align*}
+
+  this is a fact, as we have
+
+  \begin{align*}
+    WRW^TWRW^T &= WR
+    \begin{bmatrix}
+    I&U^TU^{\perp}\\
+    U^{\perp}U^T &I
+    \end{bmatrix}
+    RW^T\\
+    &= W
+    \begin{bmatrix}
+    -R_{2,2}^TR_{2,2}&0\\
+    0 &-R_{2,2}^TR_{2,2}
+    \end{bmatrix}
+    W^T\\
+    &= WR^2W^T.
+  \end{align*}
+
+This enables us to construct a power series in a similar fashion as above
+
+\begin{align*}
+    \phi(B) &= \alpha_0 I + W \sum_{i=1}^{\infty}\alpha_i (R)^{i}W^T \\
+     &= \alpha_0 I + W (\phi(R) - I)W^T \\
+     &= \alpha_0 I + W R(I-\frac{1}{2}R)W^T \\
+\end{align*}
+
+\noindent which yields the expression we set out to prove
+
+\begin{align*}
+    \text{cay}(CD^T) &= I + [U,U^{\perp}]\begin{bmatrix}
+      0&-R^T_{2,2}\\
+      R_{2,2}&0
+    \end{bmatrix}
+    \biggl(I+\frac{1}{2}
+    \begin{bmatrix}
+      0&-R^T_{2,2}\\
+      R_{2,2}&0
+    \end{bmatrix}
+    \biggl)^{-1}[U,U^{\perp}]^T.
+  \end{align*}
+
+\end{proof}
 
 \bibliography{ref}
 

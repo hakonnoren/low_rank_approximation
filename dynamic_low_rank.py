@@ -15,6 +15,7 @@ from bidiag_svd import lanczos_svd
 Different implementations of the Cayley transformation, 
 specifically made for the 2. order Runge Kutta algortihm 
 
+Described in greater detail in the report.
 """
 
 def cay(B):
@@ -27,8 +28,7 @@ def cay_naive(FU,U):
     return inv(I(n) - 0.5*B)@(I(n) + 0.5*B)
 
 def cay_test_1(FU,U):
-    k = U.shape[1]
-    m = U.shape[0]    
+    m,k = U.shape 
     D = np.concatenate([U,FU],axis = 1)
     C = np.concatenate([FU,-U],axis = 1)
     
@@ -37,9 +37,20 @@ def cay_test_1(FU,U):
     return I(m) + C@inv(I(2*k) - 0.5*DTC)@D.T
 
 def cay_test_2(FU,U):
-    k = U.shape[1]
-    m = U.shape[0]    
-    
+    m,k = U.shape
+    Uperp,R22 = np.linalg.qr(FU)
+    R = np.zeros((2*k,2*k))
+    R[0:k,k:] = -R22.T
+    R[k:,0:k] = R22
+    W = np.concatenate([U,Uperp],axis = 1)
+
+    return I(m) + W@R@inv(I(2*k) - 0.5*R)@W.T
+
+
+
+def cay_test_3(FU,U):
+    m,k = U.shape
+
     D = np.concatenate([U,FU],axis = 1)
     C = np.concatenate([FU,-U],axis = 1)
     
@@ -50,20 +61,12 @@ def cay_test_2(FU,U):
     
     K12 = np.concatenate([K1,K2],axis=1)
     K34 = np.concatenate([K3,K4],axis=1)
-    K = np.concatenate([K12,K34])
+    K = np.concatenate([K12,K34],axis=0)
     
     return I(m)+C@K@D.T
 
 
-def cay_test_3(FU,U):
-    k = U.shape[1]
-    Q,R = np.linalg.qr(FU)
-    K = np.zeros((2*k,2*k))
-    K[0:k,k:] = -R.T
-    K[k:,0:k] = R
-    L = np.concatenate([U,Q],axis = 1)
-    
-    return L@cay(K)@L.T
+
     
     
 ################### end Cayley transformation ###########################
@@ -392,8 +395,11 @@ def plot_singular_values(sigmas_X,sigmas_Y,T):
 
 def run_test(A,Adot,k,h0,t0,T,tol,plot_singular = False,compare_W = True):
     """
-    Runs the ODE_solver 
+    Runs solve_ode collecting errors and singular values.
+    Plots singular values with plot_singular_values
+    Plots error with plot_error
     
+    For INPUT and OUTPUT see the above-mentioned functions.
     """
     
     
@@ -411,7 +417,22 @@ def animate_experiment(A,Adot,k,h0,t0,T,tol):
     return animate_matrix_func(Ys,T,fps,approx_input = True)
     
     
-def experiment_cayley(ms,k):
+def experiment_cayley(ms,k,test_matrix = "A1"):
+    
+    """
+    Performs experiments measuring the run time of different implementations of the Cayley transformation.
+    
+    INPUT:
+        ms: list of m, defining the size of the matrices to be approximated
+        k: rank k of the approximation
+        test_matrix: string for deciding which test matrix should be used. Choose either "A1","A2" or"A3"
+    
+    OUTPUT:
+        Plot of run time for the four different implementations
+        Prints accuracy of the three methods compared to the naive transformation
+    
+    """
+    
     h0 = 1e-1
     t = 3*h0
     
@@ -428,29 +449,47 @@ def experiment_cayley(ms,k):
     
     for i,m in enumerate(ms):
         
-        A,Adot = get_A1(m**2,m,k)
+        if test_matrix == "A1":
+            A,Adot = get_A1(m**2,m,k)
+        elif test_matrix == "A2":
+            A,Adot = get_A2(1e-1,m)
+        elif test_matrix == "A3":
+            A,Adot = get_A3(1e-1,m)
         U0,S0,V0 = get_initial_decomp(A(0),k)
         
+        #Permutes the order of the experiments randomly
         random.shuffle(order)
         for e in order:
-        
+            
+            #Performing one RKII step and measuring run time
             t0 = time.perf_counter()
             rk2(U0,S0,V0,Adot,h0,t,select_cay=test_names[e])
             times[e][i] = time.perf_counter() - t0
             
     for i in range(4):
         plt.semilogy(ms,times[i],label=test_names[i])
+        
     plt.legend()
     plt.xlabel("$n = m^2$")
     plt.ylabel("$t \; (s)$")
     plt.title("Runtime for different Cayley transformations")
     plt.show()
     
+    #Calls rkII in order to test accuracy of the three methods
     rk2(U0,S0,V0,Adot,h0,t,select_cay="test_accuracy")
     
 
     
 ################### GENERATORS FOR pt II ###########################
+
+"""
+Below follows functions for generating the matrices used in experiments.
+See the report for a clearer presentation of how these are generated.
+
+A note on the randomness: we set seeds when generating Ai_j, i = 2,3 and j = 2,3
+This ensures that the random matrices stay the same between experiments yielding comparable results.
+
+"""
     
 def get_A0(m,k):
     return np.random.rand(m,k)@np.random.rand(m,k).T
@@ -523,18 +562,16 @@ def get_A2(epsilon,m):
 ################### GENERATORS FOR pt IV ###########################
 
 def get_A3(epsilon,m):
-    #m = 10
-    
-    A2_1 = get_Ai(epsilon,m,seed = 1)
-    A2_2 = get_Ai(epsilon,m,seed = 2)
+    A3_1 = get_Ai(epsilon,m,seed = 1)
+    A3_2 = get_Ai(epsilon,m,seed = 2)
     
     Q1,T1 = get_Qi(1,m)
     Q2,T2 = get_Qi(2,m)
     
-    A2 = lambda t: Q1(t)@(A2_1 + np.cos(t)*A2_2)@Q2(t).T
-    A2dot = lambda t: T1@A2(t) + A2(t)@T2.T - Q1(t)@(np.sin(t)*A2_2)@Q2(t).T
+    A3 = lambda t: Q1(t)@(A3_1 + np.cos(t)*A3_2)@Q2(t).T
+    A3dot = lambda t: T1@A3(t) + A3(t)@T2.T - Q1(t)@(np.sin(t)*A3_2)@Q2(t).T
     
-    return A2,A2dot
+    return A3,A3dot
 
 
 ################### end GENERATORS FOR pt IV ###########################

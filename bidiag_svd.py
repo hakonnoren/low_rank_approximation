@@ -61,7 +61,7 @@ def bidiag_svd_step(B):
     """
     SVD step for the bidiagonal Lanczos SVD algorithm. 
     Given bidiagonal submatrix B, this algorithm performs 
-    something similar to a truncated QR iteration on T = B^TB
+    something similar to a shifted QR iteration on T = B^TB
     
     INPUT:
         B: n x n lower bidiagonal matrix
